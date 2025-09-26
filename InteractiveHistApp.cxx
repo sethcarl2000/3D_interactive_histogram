@@ -19,15 +19,17 @@ void InteractiveHistApp::CloseWindow()
 }
 
 //_______________________________________________________________________________________________________
-InteractiveHistApp::InteractiveHistApp( const TGWindow* p, 
-                                        UInt_t w, 
-                                        UInt_t h,
-                                        ROOT::RDF::RNode df, 
+InteractiveHistApp::InteractiveHistApp( ROOT::RDF::RNode df, 
                                         const HistAxis_t& x_ax, 
                                         const HistAxis_t& y_ax, 
-                                        const HistAxis_t& z_ax )
- : TGMainFrame( p, w, h ), 
-    fXax{x_ax}, fYax{y_ax}, fZax{z_ax}
+                                        const HistAxis_t& z_ax, 
+                                        UInt_t w, 
+                                        UInt_t h,
+                                        UInt_t palette, 
+                                        const TGWindow* p
+                                        )
+ : TGMainFrame( (p==nullptr) ? gClient->GetRoot() : p, w, h ), 
+    fXax{x_ax}, fYax{y_ax}, fZax{z_ax}, fPalette{palette}
 {
     const char* const here = "InteractiveHistApp::InteractiveHistApp"; 
 
@@ -45,8 +47,10 @@ InteractiveHistApp::InteractiveHistApp( const TGWindow* p,
         fXax.nbins, fXax.x0, fXax.x1, 
         fYax.nbins, fYax.x0, fYax.x1
     ); 
+    //disable stats, set the drawing color palette
     gStyle->SetOptStat(0); 
-    
+    gStyle->SetPalette(fPalette);
+
     fECanv_h2d->GetCanvas()->cd(); 
     f_h2d->Draw("col"); 
 
@@ -83,8 +87,7 @@ InteractiveHistApp::InteractiveHistApp( const TGWindow* p,
     FillVectors(df);   
 
     //draw the 'z' histogram
-    cout << "data z size: " << fData_z.size() << endl; 
-    for (double z : fData_z) f_h1d->Fill(z); 
+    for (const auto& dat : fData) f_h1d->Fill(dat[2]); 
     fECanv_hcut->GetCanvas()->cd(); 
     f_h1d->Draw(); 
     fECanv_hcut->GetCanvas()->Modified(); 
@@ -134,16 +137,14 @@ void InteractiveHistApp::SliderMoved()
     //now, redraw the histograms
     f_h2d->Reset(); 
 
-    const size_t n_data = fData_z.size(); 
-    for (size_t i=0; i<n_data; i++) {
-        if (fabs(fData_z[i]-z_center) < cut_size) f_h2d->Fill( fData_x[i], fData_y[i] ); 
+    for (const auto& point : fData) {
+        if (fabs(point[2]-z_center) < cut_size) { f_h2d->Fill( point[0], point[1] ); } 
     }
     auto c_h2d = fECanv_h2d->GetCanvas(); 
     c_h2d->cd();
     f_h2d->Draw("col2"); 
     c_h2d->Modified();
     c_h2d->Update(); 
-
 }   
 
 //_______________________________________________________________________________________________________
@@ -154,10 +155,16 @@ void InteractiveHistApp::FillVectors(ROOT::RDF::RNode df)
 
     cout << "making vectors for " << n_events << "events..." << flush;
 
-    //create the data vectors
-    fData_x = *(df.Take<double>(fXax.name.c_str())); 
-    fData_y = *(df.Take<double>(fYax.name.c_str())); 
-    fData_z = *(df.Take<double>(fZax.name.c_str()));
+    fData = *df  
+        .Define("data_array", [](double x, double y, double z){ 
+            return std::array<double,3>{x, y, z};
+        }, {
+            fXax.name.c_str(),
+            fYax.name.c_str(),
+            fZax.name.c_str()
+        })
+        
+        .Take<std::array<double,3>>("data_array");
 
     cout << "done." << endl; 
 }

@@ -15,6 +15,8 @@
 #include <TH2D.h> 
 #include <ROOT/RDataFrame.hxx> 
 #include <vector> 
+#include <array> 
+#include <TColor.h> 
 
 
 struct HistAxis_t {
@@ -44,18 +46,22 @@ private:
     void FillVectors(ROOT::RDF::RNode df); 
 
     //BEWARE! for the sake of speed, all data will be stores in vectors, in memory. 
-    std::vector<double> fData_x, fData_y, fData_z;
-
+    std::vector<std::array<double,3>> fData;
 
     const HistAxis_t fXax, fYax, fZax; 
+
+    const UInt_t fPalette; 
     
 public: 
 
-    InteractiveHistApp( const TGWindow* p, UInt_t w, UInt_t h,
-                        ROOT::RDF::RNode df, 
+    InteractiveHistApp( ROOT::RDF::RNode df, 
                         const HistAxis_t& x_ax, 
                         const HistAxis_t& y_ax, 
-                        const HistAxis_t& z_ax );
+                        const HistAxis_t& z_ax, 
+                        UInt_t w=800, 
+                        UInt_t h=600, 
+                        UInt_t palette=kSunset,
+                        const TGWindow* p=nullptr );
 
     ~InteractiveHistApp(); 
 

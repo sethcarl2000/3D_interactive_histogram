@@ -10,20 +10,18 @@ using namespace std;
 int test_3d_hist()
 {
     ROOT::EnableImplicitMT(); 
-    ROOT::RDataFrame df(1e5);
+    ROOT::RDataFrame df(1e6);
 
     TRandom3 rand; 
 
     auto df_test = df
-        .Define("x", [&rand](){ return rand.Gaus(); }, {}) 
-        .Define("y", [&rand](){ return rand.Gaus(); }, {}) 
-        .Define("z", [&rand](){ return rand.Gaus(); }, {}); 
-
+        .Define("z", [&rand](){ return rand.Gaus(); }, {}) 
+        .Define("x", [&rand](double z){ return z; }, {"z"})   //add some fun little correlations with 'z' 
+        .Define("y", [&rand](double z){ return z; }, {"z"}); 
+        
     cout << "making interactive app..." << endl; 
 
-    auto hist = df_test.Histo2D<double>({"h", "test",  100, -4, 4,  100, -4, 4}, "x", "y"); 
-    
-    new InteractiveHistApp(gClient->GetRoot(), 800, 800, df_test, {"x", 125, -4., +4.}, {"y", 125, -4., +4.}, {"z", 125, -4., +4.}); 
+    new InteractiveHistApp(df_test, {"x", 125, -4., +4.}, {"y", 125, -4., +4.}, {"z", 125, -4., +4.}, 900, 750, kSunset); 
 
     return 0; 
 }
