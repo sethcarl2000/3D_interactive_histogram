@@ -1,5 +1,5 @@
-#ifndef InteractiveHistApp_HXX
-#define InteractiveHistApp_HXX
+#ifndef Interactive3dHist_HXX
+#define Interactive3dHist_HXX
 
 //TGMainFrame windows
 #include <TGWindow.h> 
@@ -25,7 +25,7 @@ struct HistAxis_t {
     double x0, x1; 
 }; 
 
-class InteractiveHistApp : public TGMainFrame {
+class Interactive3dHist : public TGMainFrame {
 private: 
     //frame containing both sub-frames
     TGVerticalFrame     *fFrame_main; 
@@ -54,7 +54,7 @@ private:
     
 public: 
 
-    InteractiveHistApp( ROOT::RDF::RNode df, 
+    Interactive3dHist( ROOT::RDF::RNode df, 
                         const HistAxis_t& x_ax, 
                         const HistAxis_t& y_ax, 
                         const HistAxis_t& z_ax, 
@@ -63,7 +63,7 @@ public:
                         UInt_t palette=kSunset,
                         const TGWindow* p=nullptr );
 
-    ~InteractiveHistApp(); 
+    ~Interactive3dHist(); 
 
     //slider has been updated
     void SliderMoved(); 
@@ -71,7 +71,7 @@ public:
     //close window and terminate application
     void CloseWindow(); 
 
-    ClassDef(InteractiveHistApp,1); 
+    ClassDef(Interactive3dHist,1); 
 };
 
 #endif

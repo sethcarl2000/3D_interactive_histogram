@@ -1,4 +1,4 @@
-#include <InteractiveHistApp.hxx> 
+#include <Interactive3dHist.hxx> 
 #include <TGClient.h> 
 #include <TGLayout.h>
 #include <TStyle.h>  
@@ -8,18 +8,18 @@
 
 using namespace std; 
 
-InteractiveHistApp::~InteractiveHistApp()
+Interactive3dHist::~Interactive3dHist()
 {
     Cleanup(); 
 }
 
-void InteractiveHistApp::CloseWindow()
+void Interactive3dHist::CloseWindow()
 {
     gApplication->Terminate(0); 
 }
 
 //_______________________________________________________________________________________________________
-InteractiveHistApp::InteractiveHistApp( ROOT::RDF::RNode df, 
+Interactive3dHist::Interactive3dHist( ROOT::RDF::RNode df, 
                                         const HistAxis_t& x_ax, 
                                         const HistAxis_t& y_ax, 
                                         const HistAxis_t& z_ax, 
@@ -31,7 +31,7 @@ InteractiveHistApp::InteractiveHistApp( ROOT::RDF::RNode df,
  : TGMainFrame( (p==nullptr) ? gClient->GetRoot() : p, w, h ), 
     fXax{x_ax}, fYax{y_ax}, fZax{z_ax}, fPalette{palette}
 {
-    const char* const here = "InteractiveHistApp::InteractiveHistApp"; 
+    const char* const here = "Interactive3dHist::Interactive3dHist"; 
 
     //create the main, vertical frame
     fFrame_main = new TGVerticalFrame(this, w, h); 
@@ -63,7 +63,7 @@ InteractiveHistApp::InteractiveHistApp( ROOT::RDF::RNode df,
     fFrame_hcut = new TGVerticalFrame(fFrame_main, w, 0.25*h); 
     
     fCutSlider = new TGHSlider(fFrame_hcut, w); 
-    fCutSlider->Connect("Released()", "InteractiveHistApp", this, "SliderMoved()"); 
+    fCutSlider->Connect("Released()", "Interactive3dHist", this, "SliderMoved()"); 
     fFrame_hcut->AddFrame(fCutSlider, new TGLayoutHints(kLHintsTop | kLHintsCenterX | kLHintsExpandX, 0, 0, 0, 5));
 
     fECanv_hcut = new TRootEmbeddedCanvas("canv_hcut", fFrame_hcut, w, 0.2*h); 
@@ -103,7 +103,7 @@ InteractiveHistApp::InteractiveHistApp( ROOT::RDF::RNode df,
 }
 
 //_______________________________________________________________________________________________________
-void InteractiveHistApp::SliderMoved()
+void Interactive3dHist::SliderMoved()
 {   
     //slider has been moved. lets update the hist. 
 
@@ -148,7 +148,7 @@ void InteractiveHistApp::SliderMoved()
 }   
 
 //_______________________________________________________________________________________________________
-void InteractiveHistApp::FillVectors(ROOT::RDF::RNode df)
+void Interactive3dHist::FillVectors(ROOT::RDF::RNode df)
 {
     //fill the vectors with the data. 
     const size_t n_events = *df.Count(); 

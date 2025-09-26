@@ -3,7 +3,7 @@
 #include <TRandom3.h> 
 #include <TGClient.h> 
 #include <iostream> 
-#include "InteractiveHistApp.hxx"
+#include <Interactive3dHist.hxx>
 
 using namespace std; 
 
@@ -21,7 +21,7 @@ int test_3d_hist()
         
     cout << "making interactive app..." << endl; 
 
-    new InteractiveHistApp(df_test, {"x", 125, -4., +4.}, {"y", 125, -4., +4.}, {"z", 125, -4., +4.}, 900, 750, kSunset); 
+    new Interactive3dHist(df_test, {"x", 125, -4., +4.}, {"y", 125, -4., +4.}, {"z", 125, -4., +4.}, 900, 750, kSunset, gClient->GetRoot()); 
 
     return 0; 
 }
