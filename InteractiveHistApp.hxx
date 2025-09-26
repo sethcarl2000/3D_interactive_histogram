@@ -14,6 +14,7 @@
 #include <TH1D.h> 
 #include <TH2D.h> 
 #include <ROOT/RDataFrame.hxx> 
+#include <vector> 
 
 
 struct HistAxis_t {
@@ -36,7 +37,15 @@ private:
     TRootEmbeddedCanvas *fECanv_hcut; 
     TGHSlider           *fCutSlider;
     TH1D                *f_h1d;  
-    TBox                *fCutBox; 
+    TBox                *fCutBox{nullptr}; 
+
+    //called at construction time. beware! all data will be filled in vectors (in memory)!. 
+    //make sure you have enough ram. 
+    void FillVectors(ROOT::RDF::RNode df); 
+
+    //BEWARE! for the sake of speed, all data will be stores in vectors, in memory. 
+    std::vector<double> fData_x, fData_y, fData_z;
+
 
     const HistAxis_t fXax, fYax, fZax; 
     

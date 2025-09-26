@@ -34,7 +34,6 @@ InteractiveHistApp::InteractiveHistApp( const TGWindow* p,
     //create the main, vertical frame
     fFrame_main = new TGVerticalFrame(this, w, h); 
 
-
     //create the frame for the primary (2D) canvas
     fFrame_h2d  = new TGVerticalFrame(fFrame_main, w, 0.8*h); 
     
@@ -80,6 +79,20 @@ InteractiveHistApp::InteractiveHistApp( const TGWindow* p,
 
     AddFrame(fFrame_main, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 0, 0, 0, 0)); 
 
+    //fill the data vectors
+    FillVectors(df);   
+
+    //draw the 'z' histogram
+    cout << "data z size: " << fData_z.size() << endl; 
+    for (double z : fData_z) f_h1d->Fill(z); 
+    fECanv_hcut->GetCanvas()->cd(); 
+    f_h1d->Draw(); 
+    fECanv_hcut->GetCanvas()->Modified(); 
+    fECanv_hcut->GetCanvas()->Update(); 
+
+    //draw the histograms
+    SliderMoved(); 
+
     SetWindowName("2d histogram");
     MapSubwindows();
     Resize(GetDefaultSize());
@@ -94,9 +107,57 @@ void InteractiveHistApp::SliderMoved()
     double slider_amplitude = (double)(fCutSlider->GetMaxPosition() - fCutSlider->GetMinPosition());
     double slider_val       = (double)(fCutSlider->GetPosition()    - fCutSlider->GetMinPosition());
     
-    const double z_center   = 
+    double index = slider_val/slider_amplitude; 
 
-    printf("new slider position: %.4f", slider_val/slider_amplitude); 
-    cout << flush; 
+    const double z_center = fZax.x0 + (fZax.x1 - fZax.x0)*index; 
+
+    const double cut_fraction = 0.10; 
+    double cut_size = (fZax.x1 - fZax.x0)*(cut_fraction/2.); 
+
+    //now, redraw the histograms and the box 
+    if (fCutBox != nullptr) { delete fCutBox; }
+    fCutBox = new TBox(
+        z_center - cut_size, 0., 
+        z_center + cut_size, f_h1d->GetMaximum()*1.05
+    ); 
+    fCutBox->SetLineStyle(1); 
+    fCutBox->SetLineColor(kRed); 
+    fCutBox->SetFillStyle(3004); 
+    fCutBox->SetFillColor(kRed); 
+    
+    auto c_cut = fECanv_hcut->GetCanvas(); 
+    c_cut->cd(); 
+    fCutBox->Draw(); 
+    c_cut->Modified(); 
+    c_cut->Update(); 
+
+    //now, redraw the histograms
+    f_h2d->Reset(); 
+
+    const size_t n_data = fData_z.size(); 
+    for (size_t i=0; i<n_data; i++) {
+        if (fabs(fData_z[i]-z_center) < cut_size) f_h2d->Fill( fData_x[i], fData_y[i] ); 
+    }
+    auto c_h2d = fECanv_h2d->GetCanvas(); 
+    c_h2d->cd();
+    f_h2d->Draw("col2"); 
+    c_h2d->Modified();
+    c_h2d->Update(); 
+
 }   
 
+//_______________________________________________________________________________________________________
+void InteractiveHistApp::FillVectors(ROOT::RDF::RNode df)
+{
+    //fill the vectors with the data. 
+    const size_t n_events = *df.Count(); 
+
+    cout << "making vectors for " << n_events << "events..." << flush;
+
+    //create the data vectors
+    fData_x = *(df.Take<double>(fXax.name.c_str())); 
+    fData_y = *(df.Take<double>(fYax.name.c_str())); 
+    fData_z = *(df.Take<double>(fZax.name.c_str()));
+
+    cout << "done." << endl; 
+}
