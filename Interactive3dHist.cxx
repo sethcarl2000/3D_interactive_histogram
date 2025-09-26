@@ -153,7 +153,7 @@ void Interactive3dHist::FillVectors(ROOT::RDF::RNode df)
     //fill the vectors with the data. 
     const size_t n_events = *df.Count(); 
 
-    cout << "making vectors for " << n_events << "events..." << flush;
+    cout << "making vectors for " << n_events << " events..." << flush;
 
     fData = *df  
         .Define("data_array", [](double x, double y, double z){ 
@@ -168,3 +168,5 @@ void Interactive3dHist::FillVectors(ROOT::RDF::RNode df)
 
     cout << "done." << endl; 
 }
+
+ClassImp(Interactive3dHist); 

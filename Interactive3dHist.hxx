@@ -54,7 +54,7 @@ private:
     
 public: 
 
-    Interactive3dHist( ROOT::RDF::RNode df, 
+    Interactive3dHist(  ROOT::RDF::RNode df, 
                         const HistAxis_t& x_ax, 
                         const HistAxis_t& y_ax, 
                         const HistAxis_t& z_ax, 
